@@ -176,18 +176,22 @@
     margin-bottom: 20px;
   }
 
-  /* 로고 아이콘 — 전체 이미지 표시 */
+  /* 로고 아이콘 — 전체 이미지 표시, 터치 이벤트 버튼으로 위임 */
   #breathBtn .btn-icon {
     width: 140px; height: 140px;
     object-fit: contain;
     flex-shrink: 0;
+    pointer-events: none;
+    background: transparent;
+    display: block;
   }
 
   #breathBtn .btn-hint {
     font-family: 'Gowun Dodum', sans-serif;
     font-size: 1rem; color: var(--teal);
-    font-weight: 700; margin-top: 12px;
+    font-weight: 700; margin-top: 8px;
     transition: color 0.2s;
+    pointer-events: none;
   }
 
   #breathBtn.holding {
@@ -336,7 +340,7 @@
 
   <!-- 타이틀: 아이콘 + 텍스트 나란히 -->
   <div class="guide-title-row">
-    <img src="logo.jpg" alt="" class="guide-title-icon">
+    <img src="logo.png" alt="" class="guide-title-icon">
     <span class="guide-title">나의 호흡 측정기</span>
   </div>
   <div class="guide-sub">한국명상코칭상담연구소</div>
@@ -388,7 +392,7 @@
     <div class="breath-guide-label">들이쉴 때 원을 누르고 &nbsp; 내쉴 때 손을 떼세요</div>
 
     <button id="breathBtn">
-      <img src="logo.jpg" class="btn-icon" alt="로고">
+      <img src="logo.png" class="btn-icon" alt="로고">
       <span class="btn-hint" id="btnHint">꾹 누르기</span>
     </button>
 
