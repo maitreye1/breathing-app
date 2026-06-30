@@ -69,7 +69,7 @@
   }
   .guide-title-icon {
     width: 44px; height: 44px;
-    object-fit: cover; object-position: center 10%;
+    object-fit: contain;
     flex-shrink: 0;
   }
   .guide-title {
@@ -167,8 +167,8 @@
     cursor: pointer; outline: none;
     -webkit-tap-highlight-color: transparent;
     display: flex; flex-direction: column;
-    align-items: center; justify-content: flex-start;
-    padding-top: 48px;
+    align-items: center; justify-content: center;
+    padding-top: 0;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     user-select: none; -webkit-user-select: none;
     overflow: hidden;
@@ -176,11 +176,10 @@
     margin-bottom: 20px;
   }
 
-  /* 로고 아이콘 — 텍스트 잘라내고 아이콘만 */
+  /* 로고 아이콘 — 전체 이미지 표시 */
   #breathBtn .btn-icon {
-    width: 120px; height: 100px;
-    object-fit: cover;
-    object-position: center 10%;
+    width: 140px; height: 140px;
+    object-fit: contain;
     flex-shrink: 0;
   }
 
@@ -414,7 +413,7 @@
 </div>
 
 <!-- 리포트 화면 (측정 완료 후 표시) -->
-<div id="reportScreen" style="display:none">
+<div id="reportScreen">
   <div class="app-header">
     <span class="app-header-title">호흡 분석 리포트</span>
   </div>
