@@ -598,16 +598,16 @@ function selectAge(btn) {
 
 // ── 축원 문구 ──
 const BLESSINGS = [
-  '오늘 그대의 숨결이 고요한 호수처럼 잔잔하시길',
-  '그대 마음속 작은 등불이 꺼지지 않고 은은히 빛나기를',
-  '지친 하루 끝에서도 그대 안의 봄빛을 잃지 않으시길',
-  '흔들리는 순간마다 그대 곁에 고요한 뿌리가 함께하기를',
-  '그대의 걸음마다 따뜻한 바람이 살며시 등을 밀어주기를',
-  '오늘 하루, 그대의 마음에 맑은 이슬 한 방울 머무르기를',
-  '그대 안의 연꽃이 진흙 속에서도 향기롭게 피어나기를',
-  '애쓰는 그대의 마음에 달빛 같은 쉼이 깃들기를',
-  '그대가 걷는 길 위에 별빛처럼 다정한 인연이 함께하기를',
-  '오늘도 그대의 숨 하나하나가 스스로를 향한 자비이기를',
+  ['오늘 당신의 숨결이', '고요한 호수처럼 잔잔하시길'],
+  ['당신의 마음속 작은 등불이', '꺼지지 않고 은은히 빛나기를'],
+  ['지친 하루 끝에서도', '당신 내면의 봄빛을 잃지 않으시길'],
+  ['흔들리는 순간마다', '당신 곁에 고요한 호흡이 함께하기를'],
+  ['당신의 걸음마다 따뜻한 바람이', '살며시 등을 밀어주기를'],
+  ['오늘 하루, 당신의 마음에', '맑은 이슬 한 방울이 머무르기를'],
+  ['당신 내면의 연꽃이', '진흙 속에서도 향기롭게 피어나기를'],
+  ['애쓰는 당신의 마음에', '달빛 같은 쉼이 깃들기를'],
+  ['당신이 걷는 길 위에', '별빛처럼 다정한 인연이 함께하기를'],
+  ['오늘도 당신의 숨 한번한번이', '스스로를 향한 자비이기를'],
 ];
 
 // ── 스플래시 → 가이드 (6초: 3초 페이드인 + 3초 페이드아웃) ──
@@ -812,7 +812,7 @@ function showReport(data) {
   // 축원 문구 (랜덤)
   const IC = '<img src="logo.png" class="icon-img">';
   const blessing = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
-  document.getElementById('blessingBox').innerHTML = `${IC} ${blessing}`;
+  document.getElementById('blessingBox').innerHTML = `${blessing[0]}<br>${blessing[1]}`;
 }
 
 // ── 이미지 로드 헬퍼 ──
@@ -830,7 +830,7 @@ function loadImage(src) {
 document.getElementById('downloadBtn').addEventListener('click', async () => {
   await document.fonts.ready;
 
-  const W = 800, H = 900;
+  const W = 800, H = 950;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -897,15 +897,18 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W - 60, y); ctx.stroke();
 
-  // 축원 문구
-  const blessingText = (document.getElementById('blessingBox').innerText || '').trim();
-  y += 44;
+  // 축원 문구 (두 줄)
+  const blessingLines = (document.getElementById('blessingBox').innerText || '').trim().split('\n').map(l => l.trim()).filter(Boolean);
+  y += 40;
   ctx.fillStyle = '#3aafaa'; ctx.font = 'bold 20px "Gowun Dodum", sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(blessingText, W / 2, y);
+  blessingLines.forEach(line => {
+    ctx.fillText(line, W / 2, y);
+    y += 32;
+  });
 
   // logo.png 하단 장식
-  y += 36;
+  y += 20;
   const logoImg = await loadImage('logo.png');
   if (logoImg) {
     const lw = 180, lh = 180;
