@@ -541,12 +541,9 @@
       <div id="ageAssessment" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--teal-bg); font-size:0.8rem; color:var(--text-sub); line-height:1.7;"></div>
     </div>
 
-    <!-- 축원 메시지 -->
-    <div class="blessing-box" id="blessingBox"></div>
-
-    <!-- bg.jpg 배경 장식 -->
-    <div style="text-align:center; margin: 4px 0 12px;">
-      <img src="bg.jpg" style="width:60%; max-width:220px; opacity:0.12; mix-blend-mode:multiply; pointer-events:none;">
+    <!-- 연구문구 + 축원 -->
+    <div class="recommend-box" id="researchBox" style="margin-top:14px;">
+      <div class="rec-body" id="rRec" style="font-size:0.82rem; line-height:1.8;"></div>
     </div>
 
     <div class="action-btns" style="margin-top:8px">
@@ -780,12 +777,20 @@ function showReport(data) {
   document.getElementById('rBpm').textContent   = `분당 ${bpmVal}회`;
 
   const cS = cycle / 1000;
-  let type;
-  if (cS < 5)       type = '빠른 호흡';
-  else if (cS < 10) type = '안정된 호흡';
-  else               type = '깊은 호흡';
+  let type, rec;
+  if (cS < 5) {
+    type = '빠른 호흡';
+    rec = `연구결과에 따르면 느린 호흡은 자율신경계를 안정시키고 스트레스 반응을 완화하는 데 효과적이라는 보고가 있어요.<br><small style="color:var(--text-sub)">(Zaccaro et al., 2018, Frontiers in Human Neuroscience)</small><br><br>호흡명상을 통해 몸과 마음이 고요한 쉼을 찾아가시기 바랍니다.`;
+  } else if (cS < 10) {
+    type = '안정된 호흡';
+    rec = `연구결과에 따르면 분당 6~12회의 안정된 호흡은 심박변이도(HRV)를 높이고 심신의 균형을 증진시킨다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Lehrer & Gevirtz, 2014, Frontiers in Psychology)</small><br><br>호흡명상을 통해 지금의 고요함이 일상 속에서도 함께하시기 바랍니다.`;
+  } else {
+    type = '깊은 호흡';
+    rec = `연구결과에 따르면 깊고 느린 호흡은 부교감신경을 활성화하여 심신의 이완을 깊게 한다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Russo et al., 2017, Breathe)</small><br><br>호흡명상을 통해 이 깊은 고요함이 삶의 지혜로 피어나시기 바랍니다.`;
+  }
 
   document.getElementById('rType').textContent = type;
+  document.getElementById('rRec').innerHTML = rec;
 
   // 나이별 적정 호흡수
   const ageEl = document.getElementById('ageAssessment');
