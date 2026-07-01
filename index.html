@@ -802,6 +802,7 @@ function showReport(data) {
   }
 
   // 축원 문구 (랜덤)
+  const IC = '<img src="logo.png" class="icon-img">';
   const blessing = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
   document.getElementById('blessingBox').innerHTML = `${IC} ${blessing}`;
 }
