@@ -49,6 +49,18 @@
     object-fit: cover;
     object-position: center;
   }
+  #visitCount {
+    position: absolute;
+    bottom: 32px;
+    left: 0; right: 0;
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--teal);
+    letter-spacing: 0.06em;
+    pointer-events: none;
+    overflow: visible;
+    white-space: nowrap;
+  }
 
   /* 데스크톱: 이미지를 폰 크기로 중앙에 */
   @media (min-width: 600px) {
@@ -403,6 +415,7 @@
 <!-- ① SPLASH: bg.jpg 2초 나타남 → 2초 사라짐 -->
 <div id="splash">
   <img src="bg.jpg" alt="">
+  <div id="visitCount"></div>
 </div>
 
 <!-- ② GUIDE SCREEN -->
@@ -597,6 +610,18 @@ const BLESSINGS = [
 
 // ── 스플래시 → 가이드 (6초: 3초 페이드인 + 3초 페이드아웃) ──
 window.addEventListener('load', () => {
+  // 방문자 카운터
+  fetch('https://api.countapi.xyz/hit/maitreye1-breathing-app/visits')
+    .then(r => r.json())
+    .then(data => {
+      const n = data.value;
+      const formatted = n ? n.toLocaleString() : '—';
+      document.getElementById('visitCount').textContent = formatted + ' used';
+    })
+    .catch(() => {
+      document.getElementById('visitCount').textContent = '';
+    });
+
   setTimeout(() => {
     document.getElementById('splash').style.display = 'none';
     document.getElementById('guideScreen').classList.add('show');
