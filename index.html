@@ -51,10 +51,10 @@
   }
   #visitCount {
     position: absolute;
-    bottom: 32px;
+    bottom: 72px;
     left: 0; right: 0;
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     color: var(--teal);
     letter-spacing: 0.06em;
     pointer-events: none;
@@ -610,16 +610,16 @@ const BLESSINGS = [
 
 // ── 스플래시 → 가이드 (6초: 3초 페이드인 + 3초 페이드아웃) ──
 window.addEventListener('load', () => {
-  // 방문자 카운터
-  fetch('https://api.countapi.xyz/hit/maitreye1-breathing-app/visits')
+  // 방문자 카운터 (counterapi.dev v1)
+  fetch('https://api.counterapi.dev/v1/maitreye1-breathing-app/visits/up')
     .then(r => r.json())
     .then(data => {
-      const n = data.value;
-      const formatted = n ? n.toLocaleString() : '—';
+      const n = data.count;
+      const formatted = (n != null) ? Number(n).toLocaleString() : '—';
       document.getElementById('visitCount').textContent = formatted + ' used';
     })
     .catch(() => {
-      document.getElementById('visitCount').textContent = '';
+      document.getElementById('visitCount').textContent = '— used';
     });
 
   setTimeout(() => {
@@ -780,24 +780,28 @@ function showReport(data) {
   const IC = '<img src="logo.png" class="icon-img">';
   const cS = cycle / 1000;
   let type, rec;
-  if (cS < 5)       { type = '빠른 호흡'; rec = '숨이 조금 빠른 편이에요.<br>4초 들이마시고 5초 내쉬는 박자로<br>천천히 시작해봐요.'; }
-  else if (cS < 10) { type = '안정된 호흡'; rec = `호흡이 안정되어 있어요!<br>들숨 ${Math.round(avgIn/1000)+1}초 → 날숨 ${Math.round(avgEx/1000)+1}초로<br>조금씩 길게 연습해봐요.`; }
-  else              { type = '깊은 호흡'; rec = '훌륭해요! 정말 깊고 차분한 호흡이에요.<br>이 속도 그대로 명상을 이어가봐요.'; }
-  if (parseFloat(ratio) > 1.5)       { type += ' · 날숨이 긴 편'; rec += '<br><br>날숨이 들숨보다 길어서 마음이 더 차분해져요.'; }
-  else if (parseFloat(ratio) < 0.7)  { type += ' · 들숨이 긴 편'; rec += '<br><br>날숨을 들숨보다 조금 더 길게 내쉬어봐요.'; }
-  const rIn = Math.max(4, Math.round(avgIn/1000)), rEx = Math.max(5, Math.round(avgEx/1000)+1);
-  rec += `<br><br>${IC} 권장 명상 호흡<br>들숨 ${rIn}초 → 날숨 ${rEx}초`;
 
-  // 나이별 적정 호흡수 분석
+  if (cS < 5) {
+    type = '빠른 호흡';
+    rec = `연구결과에 따르면 느린 호흡은 자율신경계를 안정시키고 스트레스 반응을 완화하는 데 효과적이라는 보고가 있어요.<br><small style="color:var(--text-sub)">(Zaccaro et al., 2018, Frontiers in Human Neuroscience)</small><br><br>호흡명상을 통해 몸과 마음이 고요한 쉼을 찾아가시기 바랍니다.`;
+  } else if (cS < 10) {
+    type = '안정된 호흡';
+    rec = `연구결과에 따르면 분당 6~12회의 안정된 호흡은 심박변이도(HRV)를 높이고 심신의 균형을 증진시킨다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Lehrer & Gevirtz, 2014, Frontiers in Psychology)</small><br><br>호흡명상을 통해 지금의 고요함이 일상 속에서도 함께하시기 바랍니다.`;
+  } else {
+    type = '깊은 호흡';
+    rec = `연구결과에 따르면 깊고 느린 호흡은 부교감신경을 활성화하여 심신의 이완을 깊게 한다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Russo et al., 2017, Breathe)</small><br><br>호흡명상을 통해 이 깊은 고요함이 삶의 지혜로 피어나시기 바랍니다.`;
+  }
+
+  // 나이별 적정 호흡수 (사실 정보만, 처방 없이)
   if (selectedAge && AGE_GROUPS[selectedAge]) {
     const ag = AGE_GROUPS[selectedAge];
-    let ageMsg = '';
+    let ageMsg = `<br><br>${IC} ${ag.label} 평균 호흡수: ${ag.min}–${ag.max}회/분 &nbsp;|&nbsp; 측정값: ${bpmVal}회/분`;
     if (bpmVal < ag.min) {
-      ageMsg = `<br><br>${IC} ${ag.label} 평균 호흡수: ${ag.min}-${ag.max}회/분<br>측정값(${bpmVal}회)이 평균보다 느린 편이에요.<br>호흡이 매우 깊고 차분한 상태예요.`;
+      ageMsg += `<br>평균보다 느린 편으로, 깊고 차분한 호흡 상태입니다.`;
     } else if (bpmVal > ag.max) {
-      ageMsg = `<br><br>${IC} ${ag.label} 평균 호흡수: ${ag.min}-${ag.max}회/분<br>측정값(${bpmVal}회)이 평균보다 빠른 편이에요.<br>명상을 통해 조금씩 천천히 연습해봐요.`;
+      ageMsg += `<br>평균보다 빠른 편입니다.`;
     } else {
-      ageMsg = `<br><br>${IC} ${ag.label} 평균 호흡수: ${ag.min}-${ag.max}회/분<br>측정값(${bpmVal}회)이 정상 범위 안에 있어요. 훌륭해요!`;
+      ageMsg += `<br>해당 연령 정상 범위 안에 있습니다.`;
     }
     rec += ageMsg;
   }
