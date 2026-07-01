@@ -541,10 +541,13 @@
       <div id="ageAssessment" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--teal-bg); font-size:0.8rem; color:var(--text-sub); line-height:1.7;"></div>
     </div>
 
-    <!-- 연구문구 + 축원 -->
+    <!-- 연구문구 -->
     <div class="recommend-box" id="researchBox" style="margin-top:14px;">
       <div class="rec-body" id="rRec" style="font-size:0.82rem; line-height:1.8;"></div>
     </div>
+
+    <!-- 축원 메시지 -->
+    <div class="blessing-box" id="blessingBox"></div>
 
     <div class="action-btns" style="margin-top:8px">
       <button class="action-btn" id="resetBtn"><img src="logo.png" class="icon-img"> 다시 측정</button>
@@ -814,7 +817,7 @@ function showReport(data) {
 
 // ── 다운로드 (Canvas 직접 그리기) ──
 document.getElementById('downloadBtn').addEventListener('click', () => {
-  const W = 800, H = 1000;
+  const W = 800, H = 1200;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -852,7 +855,7 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(60, 130); ctx.lineTo(W - 60, 130); ctx.stroke();
 
-    // 측정 결과 데이터
+    // 측정 결과 데이터 (기본 6항목)
     const stats = [
       ['유효 측정 호흡', document.getElementById('rCount').textContent],
       ['평균 들숨',      document.getElementById('rAvgIn').textContent],
@@ -874,50 +877,61 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
       y += 44;
     });
 
-    // 권장 가이드 (텍스트만 추출)
-    const recEl = document.getElementById('rRec');
-    const recText = recEl.innerText || recEl.textContent;
-    y += 10;
-    ctx.fillStyle = '#eaf8f6';
-    roundRect(ctx, 60, y, W - 120, 0, 14); // height 동적
-    ctx.fillStyle = '#287d7a'; ctx.font = 'bold 19px "Gowun Dodum", serif';
-    ctx.fillText('명상 호흡 권장 가이드', 80, y + 30);
-    ctx.fillStyle = '#4a8a86'; ctx.font = '17px "Gowun Dodum", serif';
-    const lines = recText.split('\n').filter(l => l.trim());
-    let ry = y + 58;
-    lines.forEach(line => {
-      if (line.trim()) { ctx.fillText(line.trim(), 80, ry); ry += 26; }
-    });
+    // 나이별 호흡수 평가 (있을 경우)
+    const ageEl = document.getElementById('ageAssessment');
+    if (ageEl && ageEl.style.display !== 'none') {
+      const ageText = ageEl.innerText || ageEl.textContent;
+      y += 10;
+      ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(70, y); ctx.lineTo(W - 70, y); ctx.stroke();
+      y += 22;
+      ctx.fillStyle = '#4a8a86'; ctx.font = '18px "Gowun Dodum", serif';
+      ageText.split('\n').forEach(line => {
+        if (line.trim()) { ctx.fillText(line.trim(), 70, y); y += 26; }
+      });
+    }
 
     // 구분선
-    y = ry + 20;
+    y += 14;
     ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W - 60, y); ctx.stroke();
 
     // 축원 문구
     const blessingEl = document.getElementById('blessingBox');
     const blessingText = blessingEl.innerText || blessingEl.textContent;
-    y += 36;
-    ctx.fillStyle = '#3aafaa'; ctx.font = 'bold 18px "Gowun Dodum", serif';
+    y += 40;
+    ctx.fillStyle = '#3aafaa'; ctx.font = 'bold 19px "Gowun Dodum", serif';
     ctx.textAlign = 'center';
     ctx.fillText(blessingText.trim(), W / 2, y);
     ctx.textAlign = 'left';
 
-    // 하단 출처
-    y += 40;
-    ctx.fillStyle = '#b2e8e6'; ctx.font = '15px "Gowun Dodum", serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('한국명상코칭상담연구소 · meditationcoach.co.kr', W / 2, y);
-    ctx.textAlign = 'left';
+    // bg.jpg 하단 장식 (투명하게)
+    const bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
+    bgImg.src = 'bg.jpg';
+    const drawAndDownload = () => {
+      y += 40;
+      ctx.globalAlpha = 0.12;
+      const bw = 280, bh = 280;
+      ctx.drawImage(bgImg, (W - bw) / 2, y, bw, bh);
+      ctx.globalAlpha = 1;
 
-    // 다운로드
-    const link = document.createElement('a');
-    link.download = '호흡측정_리포트.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+      // 하단 출처
+      y += bh + 16;
+      ctx.fillStyle = '#b2e8e6'; ctx.font = '15px "Gowun Dodum", serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('한국명상코칭상담연구소 · meditationcoach.co.kr', W / 2, y);
+      ctx.textAlign = 'left';
+
+      const link = document.createElement('a');
+      link.download = '호흡측정_리포트.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    };
+    bgImg.onload = drawAndDownload;
+    bgImg.onerror = drawAndDownload;
   };
   logoImg.onerror = () => {
-    // 로고 없이 다운로드
     const link = document.createElement('a');
     link.download = '호흡측정_리포트.png';
     link.href = canvas.toDataURL('image/png');
