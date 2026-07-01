@@ -815,9 +815,22 @@ function showReport(data) {
   document.getElementById('blessingBox').innerHTML = `${IC} ${blessing}`;
 }
 
+// ── 이미지 로드 헬퍼 ──
+function loadImage(src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
 // ── 다운로드 (Canvas 직접 그리기) ──
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  const W = 800, H = 1200;
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+  await document.fonts.ready;
+
+  const W = 800, H = 1100;
   const canvas = document.createElement('canvas');
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext('2d');
@@ -830,113 +843,90 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   ctx.fillStyle = '#ffffff';
   roundRect(ctx, 40, 40, W - 80, H - 80, 28);
   ctx.fill();
-
-  // 카드 테두리
-  ctx.strokeStyle = '#c8e8e6';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 2;
   roundRect(ctx, 40, 40, W - 80, H - 80, 28);
   ctx.stroke();
 
-  // 로고 + 타이틀
-  const logoImg = new Image();
-  logoImg.crossOrigin = 'anonymous';
-  logoImg.src = 'logo.png';
-  logoImg.onload = () => {
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.drawImage(logoImg, 60, 60, 52, 52);
-    ctx.globalCompositeOperation = 'source-over';
+  // 타이틀
+  ctx.fillStyle = '#287d7a';
+  ctx.font = 'bold 28px "Gowun Dodum", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('호흡 분석 리포트', 70, 98);
 
-    ctx.fillStyle = '#287d7a';
-    ctx.font = 'bold 30px "Gowun Dodum", serif';
-    ctx.fillText('호흡 분석 리포트', 124, 96);
+  // 구분선
+  ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(60, 118); ctx.lineTo(W - 60, 118); ctx.stroke();
 
-    // 구분선
-    ctx.strokeStyle = '#c8e8e6';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(60, 130); ctx.lineTo(W - 60, 130); ctx.stroke();
+  // 측정 결과 6항목
+  const stats = [
+    ['유효 측정 호흡', document.getElementById('rCount').textContent],
+    ['평균 들숨',      document.getElementById('rAvgIn').textContent],
+    ['평균 날숨',      document.getElementById('rAvgEx').textContent],
+    ['들숨 : 날숨 비율', document.getElementById('rRatio').textContent],
+    ['분당 호흡 수',   document.getElementById('rBpm').textContent],
+    ['호흡 유형',      document.getElementById('rType').textContent],
+  ];
+  let y = 160;
+  stats.forEach(([k, v]) => {
+    ctx.fillStyle = '#4a8a86'; ctx.font = '20px "Gowun Dodum", sans-serif';
+    ctx.textAlign = 'left'; ctx.fillText(k, 70, y);
+    ctx.fillStyle = '#1e4a48'; ctx.font = 'bold 20px "Gowun Dodum", sans-serif';
+    ctx.textAlign = 'right'; ctx.fillText(v, W - 70, y);
+    ctx.strokeStyle = '#eaf8f6'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(70, y + 13); ctx.lineTo(W - 70, y + 13); ctx.stroke();
+    y += 46;
+  });
 
-    // 측정 결과 데이터 (기본 6항목)
-    const stats = [
-      ['유효 측정 호흡', document.getElementById('rCount').textContent],
-      ['평균 들숨',      document.getElementById('rAvgIn').textContent],
-      ['평균 날숨',      document.getElementById('rAvgEx').textContent],
-      ['들숨 : 날숨 비율', document.getElementById('rRatio').textContent],
-      ['분당 호흡 수',   document.getElementById('rBpm').textContent],
-      ['호흡 유형',      document.getElementById('rType').textContent],
-    ];
-    let y = 165;
-    stats.forEach(([k, v]) => {
-      ctx.fillStyle = '#4a8a86'; ctx.font = '20px "Gowun Dodum", serif';
-      ctx.fillText(k, 70, y);
-      ctx.fillStyle = '#1e4a48'; ctx.font = 'bold 20px "Gowun Dodum", serif';
-      ctx.textAlign = 'right';
-      ctx.fillText(v, W - 70, y);
-      ctx.textAlign = 'left';
-      ctx.strokeStyle = '#eaf8f6'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(70, y + 12); ctx.lineTo(W - 70, y + 12); ctx.stroke();
-      y += 44;
-    });
-
-    // 나이별 호흡수 평가 (있을 경우)
-    const ageEl = document.getElementById('ageAssessment');
-    if (ageEl && ageEl.style.display !== 'none') {
-      const ageText = ageEl.innerText || ageEl.textContent;
-      y += 10;
-      ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(70, y); ctx.lineTo(W - 70, y); ctx.stroke();
-      y += 22;
-      ctx.fillStyle = '#4a8a86'; ctx.font = '18px "Gowun Dodum", serif';
-      ageText.split('\n').forEach(line => {
-        if (line.trim()) { ctx.fillText(line.trim(), 70, y); y += 26; }
-      });
-    }
-
-    // 구분선
-    y += 14;
-    ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W - 60, y); ctx.stroke();
-
-    // 축원 문구
-    const blessingEl = document.getElementById('blessingBox');
-    const blessingText = blessingEl.innerText || blessingEl.textContent;
-    y += 40;
-    ctx.fillStyle = '#3aafaa'; ctx.font = 'bold 19px "Gowun Dodum", serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(blessingText.trim(), W / 2, y);
+  // 나이별 평가
+  const ageEl = document.getElementById('ageAssessment');
+  if (ageEl && ageEl.style.display !== 'none') {
+    const ageText = (ageEl.innerText || ageEl.textContent).trim();
+    y += 8;
+    ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(70, y); ctx.lineTo(W - 70, y); ctx.stroke();
+    y += 26;
+    ctx.fillStyle = '#287d7a'; ctx.font = 'bold 18px "Gowun Dodum", sans-serif';
     ctx.textAlign = 'left';
+    ageText.split('\n').forEach(line => {
+      if (line.trim()) { ctx.fillText(line.trim(), 70, y); y += 27; }
+    });
+  }
 
-    // bg.jpg 하단 장식 (투명하게)
-    const bgImg = new Image();
-    bgImg.crossOrigin = 'anonymous';
-    bgImg.src = 'bg.jpg';
-    const drawAndDownload = () => {
-      y += 40;
-      ctx.globalAlpha = 0.12;
-      const bw = 280, bh = 280;
-      ctx.drawImage(bgImg, (W - bw) / 2, y, bw, bh);
-      ctx.globalAlpha = 1;
+  // 구분선
+  y += 12;
+  ctx.strokeStyle = '#c8e8e6'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(60, y); ctx.lineTo(W - 60, y); ctx.stroke();
 
-      // 하단 출처
-      y += bh + 16;
-      ctx.fillStyle = '#b2e8e6'; ctx.font = '15px "Gowun Dodum", serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('한국명상코칭상담연구소 · meditationcoach.co.kr', W / 2, y);
-      ctx.textAlign = 'left';
+  // 축원 문구
+  const blessingText = (document.getElementById('blessingBox').innerText || '').trim();
+  y += 44;
+  ctx.fillStyle = '#3aafaa'; ctx.font = 'bold 20px "Gowun Dodum", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(blessingText, W / 2, y);
 
-      const link = document.createElement('a');
-      link.download = '호흡측정_리포트.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    };
-    bgImg.onload = drawAndDownload;
-    bgImg.onerror = drawAndDownload;
-  };
-  logoImg.onerror = () => {
-    const link = document.createElement('a');
-    link.download = '호흡측정_리포트.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  };
+  // logo.png 하단 장식
+  y += 36;
+  const logoImg = await loadImage('logo.png');
+  if (logoImg) {
+    const lw = 200, lh = 200;
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.15;
+    ctx.drawImage(logoImg, (W - lw) / 2, y, lw, lh);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    y += lh + 14;
+  }
+
+  // 하단 출처
+  ctx.fillStyle = '#b2e8e6'; ctx.font = '15px "Gowun Dodum", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('한국명상코칭상담연구소 · meditationcoach.co.kr', W / 2, y + 10);
+
+  // 다운로드
+  const link = document.createElement('a');
+  link.download = '호흡측정_리포트.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
 });
 
 function roundRect(ctx, x, y, w, h, r) {
