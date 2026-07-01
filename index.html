@@ -538,14 +538,16 @@
       <div class="result-row"><span class="result-key">들숨 : 날숨 비율</span><span class="result-val" id="rRatio">—</span></div>
       <div class="result-row"><span class="result-key">분당 호흡 수</span><span class="result-val" id="rBpm">—</span></div>
       <div class="result-row"><span class="result-key">호흡 유형</span><span class="result-val" id="rType">—</span></div>
-      <div class="recommend-box">
-        <div class="rec-title"><img src="logo.png" class="icon-img"> 명상 호흡 권장 가이드</div>
-        <div class="rec-body" id="rRec">—</div>
-      </div>
+      <div id="ageAssessment" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--teal-bg); font-size:0.8rem; color:var(--text-sub); line-height:1.7;"></div>
     </div>
 
     <!-- 축원 메시지 -->
     <div class="blessing-box" id="blessingBox"></div>
+
+    <!-- bg.jpg 배경 장식 -->
+    <div style="text-align:center; margin: 4px 0 12px;">
+      <img src="bg.jpg" style="width:60%; max-width:220px; opacity:0.12; mix-blend-mode:multiply; pointer-events:none;">
+    </div>
 
     <div class="action-btns" style="margin-top:8px">
       <button class="action-btn" id="resetBtn"><img src="logo.png" class="icon-img"> 다시 측정</button>
@@ -777,37 +779,27 @@ function showReport(data) {
   document.getElementById('rRatio').textContent = `1 : ${ratio}`;
   document.getElementById('rBpm').textContent   = `분당 ${bpmVal}회`;
 
-  const IC = '<img src="logo.png" class="icon-img">';
   const cS = cycle / 1000;
-  let type, rec;
-
-  if (cS < 5) {
-    type = '빠른 호흡';
-    rec = `연구결과에 따르면 느린 호흡은 자율신경계를 안정시키고 스트레스 반응을 완화하는 데 효과적이라는 보고가 있어요.<br><small style="color:var(--text-sub)">(Zaccaro et al., 2018, Frontiers in Human Neuroscience)</small><br><br>호흡명상을 통해 몸과 마음이 고요한 쉼을 찾아가시기 바랍니다.`;
-  } else if (cS < 10) {
-    type = '안정된 호흡';
-    rec = `연구결과에 따르면 분당 6~12회의 안정된 호흡은 심박변이도(HRV)를 높이고 심신의 균형을 증진시킨다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Lehrer & Gevirtz, 2014, Frontiers in Psychology)</small><br><br>호흡명상을 통해 지금의 고요함이 일상 속에서도 함께하시기 바랍니다.`;
-  } else {
-    type = '깊은 호흡';
-    rec = `연구결과에 따르면 깊고 느린 호흡은 부교감신경을 활성화하여 심신의 이완을 깊게 한다는 보고가 있어요.<br><small style="color:var(--text-sub)">(Russo et al., 2017, Breathe)</small><br><br>호흡명상을 통해 이 깊은 고요함이 삶의 지혜로 피어나시기 바랍니다.`;
-  }
-
-  // 나이별 적정 호흡수 (사실 정보만, 처방 없이)
-  if (selectedAge && AGE_GROUPS[selectedAge]) {
-    const ag = AGE_GROUPS[selectedAge];
-    let ageMsg = `<br><br>${IC} ${ag.label} 평균 호흡수: ${ag.min}–${ag.max}회/분 &nbsp;|&nbsp; 측정값: ${bpmVal}회/분`;
-    if (bpmVal < ag.min) {
-      ageMsg += `<br>평균보다 느린 편으로, 깊고 차분한 호흡 상태입니다.`;
-    } else if (bpmVal > ag.max) {
-      ageMsg += `<br>평균보다 빠른 편입니다.`;
-    } else {
-      ageMsg += `<br>해당 연령 정상 범위 안에 있습니다.`;
-    }
-    rec += ageMsg;
-  }
+  let type;
+  if (cS < 5)       type = '빠른 호흡';
+  else if (cS < 10) type = '안정된 호흡';
+  else               type = '깊은 호흡';
 
   document.getElementById('rType').textContent = type;
-  document.getElementById('rRec').innerHTML = rec;
+
+  // 나이별 적정 호흡수
+  const ageEl = document.getElementById('ageAssessment');
+  if (selectedAge && AGE_GROUPS[selectedAge]) {
+    const ag = AGE_GROUPS[selectedAge];
+    let ageHtml = `<strong style="color:var(--teal-dark)">${ag.label} 평균 호흡수: ${ag.min}–${ag.max}회/분</strong><br>측정값: ${bpmVal}회/분 &nbsp;·&nbsp; `;
+    if (bpmVal < ag.min)       ageHtml += '평균보다 느린 편 — 깊고 차분한 호흡 상태입니다.';
+    else if (bpmVal > ag.max)  ageHtml += '평균보다 빠른 편입니다.';
+    else                       ageHtml += '해당 연령 정상 범위 안에 있습니다.';
+    ageEl.innerHTML = ageHtml;
+    ageEl.style.display = 'block';
+  } else {
+    ageEl.style.display = 'none';
+  }
 
   // 축원 문구 (랜덤)
   const blessing = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
