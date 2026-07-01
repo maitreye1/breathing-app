@@ -909,16 +909,15 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   const logoImg = await loadImage('logo.png');
   if (logoImg) {
     const lw = 180, lh = 180;
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.globalAlpha = 0.35;
-    ctx.drawImage(logoImg, (W - lw) / 2, y, lw, lh);
     ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(logoImg, (W - lw) / 2, y, lw, lh);
     ctx.globalAlpha = 1;
     y += lh + 10;
   }
 
   // 하단 출처
-  ctx.fillStyle = '#b2e8e6'; ctx.font = '15px "Gowun Dodum", sans-serif';
+  ctx.fillStyle = '#4a8a86'; ctx.font = '15px "Gowun Dodum", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('한국명상코칭상담연구소 · meditationcoach.co.kr', W / 2, y + 10);
 
